@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:8080
+# Execute na ordem. Nos demais clientes, copie os IDs das respostas.
+GET {{baseUrl}}/status
+
+###
+POST {{baseUrl}}/agricultores
+Content-Type: application/json
+
+{"nmAgricultor":"Ana","dsEmail":"ana@example.com","nrTelefone":"11999999999","nmCidade":"Sao Paulo"}
+
+> {% client.global.set("agricultorId", response.body.cdAgricultor); %}
+
+###
+POST {{baseUrl}}/culturas
+Content-Type: application/json
+
+{"nmCultura":"Tomate","dsCategoria":"Hortalica"}
+
+> {% client.global.set("culturaId", response.body.cdCultura); %}
+
+###
+POST {{baseUrl}}/agricultores/{{agricultorId}}/lotes
+Content-Type: application/json
+
+{"cdAgricultor":{{agricultorId}},"cdCultura":{{culturaId}},"qtPesoInicialKg":200,"qtPesoDisponivelKg":200,"dtColheita":"2026-11-01","dsArmazenamento":"Galpao","vlPrecoKg":4.50,"dsStatus":"DISPONIVEL"}
+
+> {% client.global.set("loteId", response.body.cdLote); %}
+
+###
+GET {{baseUrl}}/lotes
+
+###
+GET {{baseUrl}}/agricultores/{{agricultorId}}/lotes
+
+###
+PUT {{baseUrl}}/lotes/{{loteId}}
+Content-Type: application/json
+
+{"cdAgricultor":{{agricultorId}},"cdCultura":{{culturaId}},"qtPesoInicialKg":200,"qtPesoDisponivelKg":150,"dtColheita":"2026-11-01","dsArmazenamento":"Galpao","vlPrecoKg":4.50,"dsStatus":"DISPONIVEL"}
+
+### Esperado 409: agricultor ainda possui lote
+DELETE {{baseUrl}}/agricultores/{{agricultorId}}
+
+### Esperado 400
+POST {{baseUrl}}/agricultores
+Content-Type: application/json
+
+{}
+
+### Esperado 404
+GET {{baseUrl}}/lotes/999999999
+
+### Remover lote primeiro; depois pais podem ser removidos
+DELETE {{baseUrl}}/lotes/{{loteId}}
+
+###
+DELETE {{baseUrl}}/agricultores/{{agricultorId}}
+
+###
+DELETE {{baseUrl}}/culturas/{{culturaId}}
