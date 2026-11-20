@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: br.com.colheitasmart.ApiIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 29.57 s -- in br.com.colheitasmart.ApiIntegrationTest

@@ -39,3 +39,5 @@ CREATE SEQUENCE sq_tb_lote START WITH 1 INCREMENT BY 1;
 CREATE INDEX ix_lote_agricultor ON tb_lote(cd_agricultor);
 CREATE INDEX ix_lote_cultura ON tb_lote(cd_cultura);
 COMMENT ON TABLE tb_lote IS 'Lote colhido acompanhado pelo ColheitaSmart';
+ALTER TABLE TB_AGRICULTOR
+ADD DS_SENHA_HASH VARCHAR2(100);
