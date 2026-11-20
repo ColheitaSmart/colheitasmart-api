@@ -11,6 +11,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Configuration
 public class SecurityConfig {
@@ -27,8 +32,16 @@ public class SecurityConfig {
         HttpSessionSecurityContextRepository repositorio =
                 new HttpSessionSecurityContextRepository();
 
+        HttpSessionCsrfTokenRepository csrfRepository =
+                new HttpSessionCsrfTokenRepository();
+
+        csrfRepository.setHeaderName("X-CSRF-TOKEN");
+
         http
             .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(csrfRepository)
+            )
             .securityContext(context -> context
                 .securityContextRepository(repositorio)
             )
@@ -40,7 +53,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/auth/cadastro",
-                    "/auth/login"
+                    "/auth/login",
+                    "/csrf"
                 ).permitAll()
 
                 .requestMatchers(
@@ -56,5 +70,14 @@ public class SecurityConfig {
             .httpBasic(basic -> basic.disable());
 
         return http.build();
+    }
+
+    @RestController
+    public static class CsrfController {
+
+        @GetMapping("/csrf")
+        public CsrfToken csrf(CsrfToken token) {
+            return token;
+        }
     }
 }
