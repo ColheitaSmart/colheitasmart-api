@@ -3,6 +3,7 @@ package br.com.colheitasmart.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,7 +25,7 @@ public class SecurityConfig {
             HttpSecurity http) throws Exception {
 
         HttpSessionSecurityContextRepository repositorio =
-            new HttpSessionSecurityContextRepository();
+                new HttpSessionSecurityContextRepository();
 
         http
             .cors(Customizer.withDefaults())
@@ -41,6 +42,14 @@ public class SecurityConfig {
                     "/auth/cadastro",
                     "/auth/login"
                 ).permitAll()
+
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/status",
+                    "/culturas",
+                    "/culturas/**"
+                ).permitAll()
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())
