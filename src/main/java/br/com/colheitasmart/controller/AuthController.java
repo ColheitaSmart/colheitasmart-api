@@ -16,11 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -99,21 +101,16 @@ public class AuthController {
 
         Agricultor agricultor = encontrado.get();
 
-        // Evita reutilizar uma sessao anterior.
-        HttpSession sessaoAnterior = request.getSession(false);
+        // Protege contra fixacao de sessao sem descartar o CSRF.
+        HttpSession sessao = request.getSession(true);
+        request.changeSessionId();
 
-        if (sessaoAnterior != null) {
-            sessaoAnterior.invalidate();
-        }
-
-        // Identidade autenticada do agricultor.
         Authentication autenticacao =
             new UsernamePasswordAuthenticationToken(
                 agricultor.getCdAgricultor().toString(),
                 null,
-                java.util.List.of(
-                    new org.springframework.security.core.authority
-                        .SimpleGrantedAuthority("ROLE_AGRICULTOR")
+                List.of(
+                    new SimpleGrantedAuthority("ROLE_AGRICULTOR")
                 )
             );
 
@@ -123,7 +120,7 @@ public class AuthController {
         contexto.setAuthentication(autenticacao);
         SecurityContextHolder.setContext(contexto);
 
-        // Persiste a autenticacao na sessao HTTP.
+        // Salva a autenticacao na sessao HTTP.
         new HttpSessionSecurityContextRepository()
             .saveContext(contexto, request, response);
 
